@@ -42,7 +42,7 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
         if let result = try? dataController.viewContext.fetch(fetchRequest) {
             notes = result
         }
-        
+        tableView.reloadData() // Added by Iurie
         updateEditButtonState()
     }
 
@@ -79,7 +79,15 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
 
     // Deletes the `Note` at the specified index path
     func deleteNote(at indexPath: IndexPath) {
-   //     notebook.removeNote(at: indexPath.row)
+        let noteToDelete = note(at: indexPath)
+        do {
+        try dataController.viewContext.save()
+          print("Delete succeded!")
+        }
+        catch {
+            print("Delete error : \(error.localizedDescription)")
+        }
+        notes.remove(at: indexPath.row)
         tableView.deleteRows(at: [indexPath], with: .fade)
         if numberOfNotes == 0 {
             setEditing(false, animated: true)
@@ -143,7 +151,7 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
         if let vc = segue.destination as? NoteDetailsViewController {
             if let indexPath = tableView.indexPathForSelectedRow {
                 vc.note = note(at: indexPath)
-
+                vc.dataController = dataController
                 vc.onDelete = { [weak self] in
                     if let indexPath = self?.tableView.indexPathForSelectedRow {
                         self?.deleteNote(at: indexPath)
