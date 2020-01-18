@@ -15,12 +15,8 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
 
     /// The notebook whose notes are being displayed
     var notebook: Notebook!
-
- //   var notes:[Note] = []
-    
     var dataController: DataController!
-    
-    // 1
+ 
     var fetchedResultController:NSFetchedResultsController<Note>!
     
     /// A date formatter for date text in note cells
@@ -36,11 +32,7 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
         fetchRequest.predicate = predicate
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
         fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        
-        // cache name should vary based on the notebook (use string interpolation toinclude the notebook name somewhere in the cache name)
-        
-        fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "notebooks")
+        fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "\(notebook)-notes")
         
         fetchedResultController.delegate = self
 
@@ -49,22 +41,22 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
         } catch {
             fatalError("The fetch could not be performed: \(error.localizedDescription)")
         }
- //       tableView.reloadData() // Added by Iurie
-  //      updateEditButtonState()
     }
     
     override func viewDidLoad() {
+        print("Running Notes viewDidLoad")
         super.viewDidLoad()
-
         navigationItem.title = notebook.name
         navigationItem.rightBarButtonItem = editButtonItem
-        
+      
         setupFetchResultsController()
+        updateEditButtonState()
     }
 
     override func viewWillAppear(_ animated: Bool) {
+        print("Running Notes viewWillApear")
         super.viewWillAppear(animated)
-         setupFetchResultsController()
+        setupFetchResultsController()
         
         if let indexPath = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: indexPath, animated: false)
@@ -73,6 +65,7 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
     }
     
     override func viewDidDisappear(_ animated: Bool) {
+         print("Running Notes viewDidDisappear")
         super.viewDidDisappear(animated)
         fetchedResultController = nil
     }
@@ -89,17 +82,17 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
     // Adds a new `Note` to the end of the `notebook`'s `notes` array
     func addNote() {
         let note = Note(context: dataController.viewContext)
-        note.text = "New note"
+   //     note.text = "New note"
         note.creationDate = Date()
         note.notebook = notebook
         try? dataController.viewContext.save()
-  //      notes.insert(note, at: 0)
-        tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .fade)
-   //     updateEditButtonState()
+  
     }
 
     // Deletes the `Note` at the specified index path
     func deleteNote(at indexPath: IndexPath) {
+        print("indexPath for Delete note = \(indexPath)")
+        print("Fetched Result for Delete note = \(fetchedResultController.object(at: indexPath))")
         let noteToDelete = fetchedResultController.object(at: indexPath)
         dataController.viewContext.delete(noteToDelete)
         do {
@@ -130,7 +123,7 @@ class NotesListViewController: UIViewController, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fetchedResultController.sections?[section].numberOfObjects ?? 0
+        return fetchedResultController.sections?[0].numberOfObjects ?? 0
 
     }
 

@@ -36,23 +36,24 @@ class NotebooksListViewController: UIViewController, UITableViewDataSource {
     }
     
     override func viewDidLoad() {
+        print("Running Notebooks viewDidLoad")
         super.viewDidLoad()
         navigationItem.titleView = UIImageView(image: #imageLiteral(resourceName: "toolbar-cow"))
         navigationItem.rightBarButtonItem = editButtonItem
         
         setUpFetchResultsController()
-        
     }
 
     override func viewWillAppear(_ animated: Bool) {
+        print("Running Notebooks viewWillApear")
         super.viewWillAppear(animated)
-
         if let indexPath = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: indexPath, animated: false)
             tableView.reloadRows(at: [indexPath], with: .fade)
         }
     }
     override func viewDidDisappear(_ animated: Bool) {
+        print("Running Notebooks viewDidDisappear")
         super.viewDidDisappear(animated)
         fetchedResultController = nil
     }
@@ -133,10 +134,12 @@ class NotebooksListViewController: UIViewController, UITableViewDataSource {
     // MARK: - Table view data source
 
     func numberOfSections(in tableView: UITableView) -> Int {
+        print(" number of Notebook sections = \(fetchedResultController.sections!.count)")
         return fetchedResultController.sections?.count ?? 1
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print(" Number of Notebook rows = \(fetchedResultController.sections![section].numberOfObjects)")
         return fetchedResultController.sections?[section].numberOfObjects ?? 0
     }
 
