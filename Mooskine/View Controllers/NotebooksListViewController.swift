@@ -5,6 +5,7 @@
 //  Created by Josh Svatek on 2017-05-31.
 //  Copyright © 2017 Udacity. All rights reserved.
 //
+//
 
 import UIKit
 import CoreData
@@ -22,8 +23,6 @@ class NotebooksListViewController: UIViewController, UITableViewDataSource {
         let fetchRequest:NSFetchRequest<Notebook> = Notebook.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
-        
-  //      NSFetchedResultsController<Notebook>.deleteCache(withName: "notebooks")
         
         fetchedResultController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "notebooks")
         
@@ -47,6 +46,7 @@ class NotebooksListViewController: UIViewController, UITableViewDataSource {
     override func viewWillAppear(_ animated: Bool) {
         print("Running Notebooks viewWillApear")
         super.viewWillAppear(animated)
+        setUpFetchResultsController()             //  Forgot this line!!!!!
         if let indexPath = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: indexPath, animated: false)
             tableView.reloadRows(at: [indexPath], with: .fade)
@@ -196,6 +196,15 @@ extension NotebooksListViewController: NSFetchedResultsControllerDelegate {
             tableView.reloadRows(at: [indexPath!], with: .fade)
         case .move:
             tableView.moveRow(at: indexPath!, to: newIndexPath!)
+        }
+    }
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        let indexSet = IndexSet(integer: sectionIndex)
+        switch type {
+        case .insert: tableView.insertSections(indexSet, with: .fade)
+        case .delete: tableView.deleteSections(indexSet, with: .fade)
+        case .update, .move:
+            fatalError("Invalid change type in controller(_:didChange:atSectionIndex:for:). Only .insert or .delete should be possible.")
         }
     }
 
